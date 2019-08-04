@@ -20,10 +20,29 @@ enum class Mode {
     Satellites,
     Location,
 };
+#define MODE_PIN 2
 
 static NMEAGPS gps;
 static gps_fix fix;
-static Mode MODE;
+volatile Mode MODE;
+
+void updateMode() {
+    Serial.println("Interrupt fired");
+    switch (MODE) {
+        case Mode::Time:
+            Serial.println("Time -> Satellites");
+            MODE = Mode::Satellites;
+            break;
+        case Mode::Satellites:
+            Serial.println("Satellites -> Location");
+            MODE = Mode::Location;
+            break;
+        case Mode::Location:
+            Serial.println("Location -> Time");
+            MODE = Mode::Time;
+            break;
+    }
+}
 
 void setup() {
     Serial.begin(9600);
@@ -41,6 +60,7 @@ void setup() {
 
     // Select the mode we're in
     MODE = Mode::Time;
+    attachInterrupt(digitalPinToInterrupt(MODE_PIN), updateMode, RISING);
 }
 
 void loop() {
@@ -68,9 +88,15 @@ void loop() {
                 leds.Refresh();
                 break;
             case Mode::Satellites:
+                leds.Clear();
+                leds.print7Seg("sat", 8);
+                leds.Refresh();
                 Serial.println("Satellites mode not handled yet");
                 break;
             case Mode::Location:
+                leds.Clear();
+                leds.print7Seg("loc", 8);
+                leds.Refresh();
                 Serial.println("Location mode not handled yet");
                 break;
         }
