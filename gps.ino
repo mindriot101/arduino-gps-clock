@@ -1,6 +1,6 @@
+#include <NMEAGPS.h>
 #include <GPSport.h>
 #include <HCMAX7219.h>
-#include <NMEAGPS.h>
 #include <SPI.h>
 #include <Streamers.h>
 
